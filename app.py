@@ -21,6 +21,7 @@ from domain.services.statistics_engine import StatisticsEngine
 from infrastructure.repositories.weather_repository import WeatherRepository
 from presentation.components.charts import ChartManager
 from presentation.components.widgets import CopyButton, RiskGauge, AlertBox
+from utils.theme import toggle_theme
 
 # ===== PAGE CONFIGURATION =====
 st.set_page_config(
@@ -34,10 +35,6 @@ st.set_page_config(
 if 'theme_mode' not in st.session_state:
     st.session_state.theme_mode = 'night'  # Default to night mode
 
-def toggle_theme():
-    """Toggle between day and night mode"""
-    st.session_state.theme_mode = 'day' if st.session_state.theme_mode == 'night' else 'night'
-
 # ===== DYNAMIC CSS BASED ON THEME =====
 def get_theme_css():
     """Get CSS based on current theme mode"""
@@ -46,8 +43,8 @@ def get_theme_css():
     <style>
     /* Day Mode - Light Background */
     .stApp { 
-        background-color: #f8fafc; 
-        color: #1e293b;
+        background-color: #ffffff; 
+        color: #000000;
     }
     
     /* Override Streamlit defaults */
@@ -65,13 +62,13 @@ def get_theme_css():
     }
     
     [data-testid="stMetricValue"] { 
-        color: #0ea5e9; 
+        color: #000000; 
         font-weight: bold; 
         font-size: 1.8rem;
     }
     
     [data-testid="stMetricLabel"] { 
-        color: #64748b; 
+        color: #333333; 
         font-size: 0.85rem; 
         text-transform: uppercase;
         letter-spacing: 1px;
@@ -79,24 +76,25 @@ def get_theme_css():
     
     /* Headers */
     h1, h2, h3 { 
-        color: #0f172a; 
+        color: #0a0e17; 
     }
     
     h1 {
-        background: linear-gradient(90deg, #0ea5e9, #8b5cf6);
+        background: linear-gradient(90deg, #000000, #333333);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
     
     /* Sidebar */
     [data-testid="stSidebar"] {
-        background: #f1f5f9;
-        border-right: 1px solid #e2e8f0;
+        background: #f5f5f5;
+        border-right: 1px solid #000000;
     }
     
     /* Inputs */
     .stSelectbox, .stMultiSelect {
         background: #ffffff;
+        color: #000000;
     }
     
     /* Tabs */
@@ -106,27 +104,29 @@ def get_theme_css():
     
     .stTabs [data-baseweb="tab"] {
         background: #ffffff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #000000;
         border-radius: 8px 8px 0 0;
         padding: 10px 20px;
+        color: #000000;
     }
     
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #0ea5e920, #8b5cf620);
-        border-color: #0ea5e9;
+        background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+        border-color: #000000;
     }
     
     /* DataFrame */
     [data-testid="stDataFrame"] {
-        border: 1px solid #e2e8f0;
+        border: 1px solid #000000;
         border-radius: 12px;
     }
     
     /* Expander */
     .streamlit-expanderHeader {
         background: #ffffff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #000000;
         border-radius: 8px;
+        color: #000000;
     }
     
     /* Custom scrollbar */
@@ -136,16 +136,16 @@ def get_theme_css():
     }
     
     ::-webkit-scrollbar-track {
-        background: #f1f5f9;
+        background: #f5f5f5;
     }
     
     ::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
+        background: #333333;
         border-radius: 4px;
     }
     
     ::-webkit-scrollbar-thumb:hover {
-        background: #0ea5e9;
+        background: #000000;
     }
     
     /* Risk level colors - Day mode */
@@ -156,8 +156,8 @@ def get_theme_css():
     .risk-critical { border-color: #ef4444 !important; }
     
     /* Text colors for day mode */
-    .stText, .stMarkdown p, p {
-        color: #1e293b !important;
+    .stText, .stMarkdown p, p, div, span {
+        color: #000000 !important;
     }
     
     /* Button styling */
@@ -288,6 +288,9 @@ def get_theme_css():
 def load_assets():
     """Load external CSS and JavaScript files"""
     
+    # Apply dynamic theme CSS
+    st.markdown(get_theme_css(), unsafe_allow_html=True)
+    
     # Load CSS
     css_path = Path("assets/css/style.css")
     if css_path.exists():
@@ -302,124 +305,6 @@ def load_assets():
 
 # Load assets on startup
 load_assets()
-
-# ===== CUSTOM CSS =====
-st.markdown("""
-    <style>
-    /* Base theme */
-    .stApp { 
-        background-color: #0a0e17; 
-        color: #e0e7ff;
-    }
-    
-    /* Override Streamlit defaults */
-    [data-testid="stMetric"] {
-        background: linear-gradient(135deg, #1a2332 0%, #111827 100%);
-        border: 1px solid #30363d;
-        border-radius: 12px;
-        padding: 20px;
-        transition: all 0.3s ease;
-    }
-    
-    [data-testid="stMetric"]:hover {
-        border-color: #00f5ff;
-        box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
-    }
-    
-    [data-testid="stMetricValue"] { 
-        color: #00f5ff; 
-        font-weight: bold; 
-        font-size: 1.8rem;
-        text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
-    }
-    
-    [data-testid="stMetricLabel"] { 
-        color: #94a3b8; 
-        font-size: 0.85rem; 
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
-    /* Headers */
-    h1, h2, h3 { 
-        color: #f0f6fc; 
-    }
-    
-    h1 {
-        background: linear-gradient(90deg, #00f5ff, #ff00ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background: #111827;
-        border-right: 1px solid #30363d;
-    }
-    
-    /* Inputs */
-    .stSelectbox, .stMultiSelect {
-        background: #1a2332;
-    }
-    
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        background: #1a2332;
-        border: 1px solid #30363d;
-        border-radius: 8px 8px 0 0;
-        padding: 10px 20px;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #00f5ff20, #ff00ff20);
-        border-color: #00f5ff;
-    }
-    
-    /* DataFrame */
-    [data-testid="stDataFrame"] {
-        border: 1px solid #30363d;
-        border-radius: 12px;
-    }
-    
-    /* Expander */
-    .streamlit-expanderHeader {
-        background: #1a2332;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-    }
-    
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: #111827;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: #30363d;
-        border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: #00f5ff;
-    }
-    
-    /* Risk level colors */
-    .risk-normal { border-color: #00ff9d !important; }
-    .risk-watch { border-color: #58a6ff !important; }
-    .risk-warning { border-color: #ffa500 !important; }
-    .risk-alert { border-color: #ff6b35 !important; }
-    .risk-critical { border-color: #ff3366 !important; }
-    </style>
-""", unsafe_allow_html=True)
-
 
 # ===== INITIALIZE SERVICES =====
 @st.cache_resource
@@ -436,24 +321,40 @@ def get_services():
 settings, risk_engine, stats_engine, repository, chart_manager = get_services()
 
 
+def get_plotly_layout():
+    if st.session_state.theme_mode == "day":
+        return dict(
+            template="plotly_white",
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#ffffff",
+            font=dict(color="#111111")
+        )
+    else:
+        return dict(
+            template="plotly_dark",
+            paper_bgcolor="#0a0e17",
+            plot_bgcolor="#0a0e17",
+            font=dict(color="#e0e7ff")
+        )
+
 # ===== SIDEBAR =====
 def render_sidebar():
     """Render sidebar with station and filter controls"""
     
     with st.sidebar:
         # Theme toggle
-        col_theme1, col_theme2 = st.columns([3, 1])
-        with col_theme1:
-            if st.session_state.theme_mode == 'day':
-                st.markdown("☀️ **Mode Siang**")
-            else:
-                st.markdown("🌙 **Mode Malam**")
-        with col_theme2:
-            if st.button("🔄", help="Ganti Tema"):
-                toggle_theme()
-                st.rerun()
+       # col_theme1, col_theme2 = st.columns([3, 1])
+       # with col_theme1:
+           # if st.session_state.theme_mode == 'day':
+            #    st.markdown("☀️ **Mode Siang**")
+           # else:
+               # st.markdown("🌙 **Mode Malam**")
+        #with col_theme2:
+            #if st.button("🔄", help="Ganti Tema"):
+                #toggle_theme()
+                #st.rerun()
         
-        st.markdown("---")
+        #st.markdown("---")
         
         # Logo and title
         st.markdown("""
@@ -662,12 +563,21 @@ def render_charts(df):
     
     with col1:
         st.subheader("🌡️ Tren Suhu Harian")
-        fig_temp = chart_manager.temperature_trend(df)
+        fig_temp = chart_manager.temperature_trend(
+            df,
+            theme=st.session_state.theme_mode
+        )
+
+        fig_temp.update_layout(**get_plotly_layout())
         st.plotly_chart(fig_temp, use_container_width=True)
     
     with col2:
         st.subheader("🪁 Windrose (Arah Angin)")
-        fig_wind = chart_manager.windrose(df)
+        fig_wind = chart_manager.windrose(
+            df,
+            theme=st.session_state.theme_mode
+        )
+        fig_temp.update_layout(**get_plotly_layout())
         st.plotly_chart(fig_wind, use_container_width=True)
     
     # Row 2: Pressure and Humidity
@@ -675,17 +585,20 @@ def render_charts(df):
     
     with col3:
         st.subheader("⏲️ Tekanan Udara")
-        fig_press = chart_manager.pressure_chart(df)
+        fig_press = chart_manager.pressure_chart(df, theme=st.session_state.theme_mode)
+        fig_temp.update_layout(**get_plotly_layout())
         st.plotly_chart(fig_press, use_container_width=True)
     
     with col4:
         st.subheader("💧 Kelembapan Udara")
-        fig_hum = chart_manager.humidity_chart(df)
+        fig_hum = chart_manager.humidity_chart(df, theme=st.session_state.theme_mode)
+        fig_temp.update_layout(**get_plotly_layout())
         st.plotly_chart(fig_hum, use_container_width=True)
     
     # Row 3: Rainfall
     st.subheader("🌧️ Curah Hujan")
-    fig_rain = chart_manager.rainfall_chart(df)
+    fig_rain = chart_manager.rainfall_chart(df, theme=st.session_state.theme_mode)
+    fig_temp.update_layout(**get_plotly_layout())
     st.plotly_chart(fig_rain, use_container_width=True)
 
 
@@ -730,7 +643,7 @@ def render_reports(assessment):
     st.subheader("📋 Laporan Penilaian Risiko")
     
     # Risk gauge
-    fig_gauge = chart_manager.risk_gauge(assessment.risk_score, assessment.risk_level.value)
+    fig_gauge = chart_manager.risk_gauge(assessment.risk_score, assessment.risk_level.value, st.session_state.theme_mode)
     st.plotly_chart(fig_gauge, use_container_width=True)
     
     # Report text

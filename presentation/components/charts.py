@@ -7,6 +7,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import pandas as pd
 from typing import Optional, List, Dict, Any
+from utils.theme import toggle_theme
 
 
 class ChartManager:
@@ -25,10 +26,42 @@ class ChartManager:
     }
     
     # Chart templates
-    TEMPLATE = "plotly_dark"
+    TEMPLATE_DARK = "plotly_dark"
+    TEMPLATE_LIGHT = "plotly_white"
+
+    @staticmethod
+    def get_font_color(theme: str):
+     return "#000000" if theme == "day" else "#e0e7ff"
+
+    # Background colors for themes
+    @staticmethod
+    def get_bg_colors(theme: str):
+        """Get background colors based on theme"""
+        if theme == "day":
+            return {
+                'paper': '#ffffff',
+                'plot': '#ffffff',
+                'text': '#000000',
+                'grid': '#000000'
+            }
+        else:
+            return {
+                'paper': '#0a0e17',
+                'plot': '#0a0e17',
+                'text': '#e0e7ff',
+                'grid': '#30363d'
+            }
+
+    @staticmethod
+    def get_template(theme: str):
+        return (
+            ChartManager.TEMPLATE_LIGHT
+            if theme == "day"
+            else ChartManager.TEMPLATE_DARK
+        )
     
     @staticmethod
-    def temperature_trend(df: pd.DataFrame) -> go.Figure:
+    def temperature_trend(df: pd.DataFrame, theme: str = "night") -> go.Figure:
         """
         Create temperature trend chart
         
@@ -38,6 +71,8 @@ class ChartManager:
         Returns:
             Plotly figure
         """
+        
+        bg_colors = ChartManager.get_bg_colors(theme)
         
         fig = go.Figure()
         
@@ -67,13 +102,14 @@ class ChartManager:
         ))
         
         fig.update_layout(
-            template=ChartManager.TEMPLATE,
+            template=ChartManager.get_template(theme),
             title="🌡️ Tren Suhu Harian",
             xaxis_title="Tanggal",
             yaxis_title="Suhu (°C)",
             hovermode="x unified",
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor=bg_colors['paper'],
+            plot_bgcolor=bg_colors['plot'],
+            font=dict(color=bg_colors['text']),
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -86,7 +122,7 @@ class ChartManager:
         return fig
     
     @staticmethod
-    def windrose(df: pd.DataFrame) -> go.Figure:
+    def windrose(df: pd.DataFrame, theme: str) -> go.Figure:
         """
         Create windrose chart
         
@@ -96,6 +132,8 @@ class ChartManager:
         Returns:
             Plotly figure
         """
+        
+        bg_colors = ChartManager.get_bg_colors(theme)
         
         # Bin wind directions
         dir_bins = [0, 45, 90, 135, 180, 225, 270, 315, 360]
@@ -129,13 +167,14 @@ class ChartManager:
             r='count',
             theta='WD_Label',
             color='WS_Bin',
-            template=ChartManager.TEMPLATE,
+            template=ChartManager.get_template(theme),
             color_discrete_sequence=px.colors.sequential.Plasma,
             title="🪁 Windrose (Arah Angin)"
         )
         
         fig.update_layout(
-            polar=dict(bgcolor="#161b22"),
+            paper_bgcolor=bg_colors['paper'],
+            font=dict(color=ChartManager.get_font_color(theme)),
             margin=dict(t=50, b=50, l=50, r=50),
             legend_title="Kecepatan (kt)"
         )
@@ -143,7 +182,7 @@ class ChartManager:
         return fig
     
     @staticmethod
-    def pressure_chart(df: pd.DataFrame) -> go.Figure:
+    def pressure_chart(df: pd.DataFrame, theme: str) -> go.Figure:
         """
         Create pressure area chart
         
@@ -154,6 +193,8 @@ class ChartManager:
             Plotly figure
         """
         
+        bg_colors = ChartManager.get_bg_colors(theme)
+        
         fig = px.area(
             df, 
             x='Tanggal_DT', 
@@ -162,18 +203,19 @@ class ChartManager:
         )
         
         fig.update_layout(
-            template=ChartManager.TEMPLATE,
+            template=ChartManager.get_template(theme),
             title="⏲️ Tekanan Udara (mb)",
             xaxis_title="Tanggal",
             yaxis_title="Tekanan (mb)",
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)"
+            paper_bgcolor=bg_colors['paper'],
+            plot_bgcolor=bg_colors['plot'],
+            font=dict(color=ChartManager.get_font_color(theme)),
         )
         
         return fig
     
     @staticmethod
-    def humidity_chart(df: pd.DataFrame) -> go.Figure:
+    def humidity_chart(df: pd.DataFrame, theme: str) -> go.Figure:
         """
         Create humidity line chart
         
@@ -184,24 +226,31 @@ class ChartManager:
             Plotly figure
         """
         
+        bg_colors = ChartManager.get_bg_colors(theme)
+        
+        # Adjust colors for light mode visibility
+        line_colors = [
+            ChartManager.COLORS['green'],
+            ChartManager.COLORS['yellow'],
+            ChartManager.COLORS['orange'],
+            '#888888' if theme == "day" else '#ffffff'
+        ]
+        
         fig = px.line(
             df, 
             x='Tanggal_DT', 
             y=['RH07', 'RH13', 'RH18', 'RH_Avg'],
-            color_discrete_sequence=[
-                ChartManager.COLORS['green'],
-                ChartManager.COLORS['yellow'],
-                ChartManager.COLORS['orange'],
-                '#ffffff'
-            ]
+            color_discrete_sequence=line_colors
         )
         
         fig.update_layout(
-            template=ChartManager.TEMPLATE,
+            template=ChartManager.get_template(theme),
             title="💧 Kelembapan Udara (RH %)",
             xaxis_title="Tanggal",
             yaxis_title="Kelembapan (%)",
-            paper_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor=bg_colors['paper'],
+            plot_bgcolor=bg_colors['plot'],
+            font=dict(color=ChartManager.get_font_color(theme)),
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -214,7 +263,7 @@ class ChartManager:
         return fig
     
     @staticmethod
-    def rainfall_chart(df: pd.DataFrame) -> go.Figure:
+    def rainfall_chart(df: pd.DataFrame, theme: str) -> go.Figure:
         """
         Create rainfall bar chart
         
@@ -225,6 +274,8 @@ class ChartManager:
             Plotly figure
         """
         
+        bg_colors = ChartManager.get_bg_colors(theme)
+        
         fig = px.bar(
             df, 
             x='Tanggal_DT', 
@@ -234,18 +285,20 @@ class ChartManager:
         )
         
         fig.update_layout(
-            template=ChartManager.TEMPLATE,
+            template=ChartManager.get_template(theme),
             title="🌧️ Curah Hujan (mm)",
             xaxis_title="Tanggal",
             yaxis_title="Curah Hujan (mm)",
-            paper_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor=bg_colors['paper'],
+            plot_bgcolor=bg_colors['plot'],
+            font=dict(color=ChartManager.get_font_color(theme)),
             coloraxis_showscale=False
         )
         
         return fig
     
     @staticmethod
-    def risk_gauge(score: float, level: str) -> go.Figure:
+    def risk_gauge(score: float, level: str, theme: str) -> go.Figure:
         """
         Create risk gauge chart
         
@@ -256,6 +309,8 @@ class ChartManager:
         Returns:
             Plotly figure
         """
+        
+        bg_colors = ChartManager.get_bg_colors(theme)
         
         # Determine color based on level
         colors = {
@@ -268,21 +323,35 @@ class ChartManager:
         
         color = colors.get(level.upper(), ChartManager.COLORS['green'])
         
+        # Adjust gauge step colors based on theme
+        if theme == "day":
+            step_colors = [
+                {'range': [0, 30], 'color': "#d4edda"},
+                {'range': [30, 50], 'color': "#cce5ff"},
+                {'range': [50, 70], 'color': "#fff3cd"},
+                {'range': [70, 85], 'color': "#f8d7da"},
+                {'range': [85, 100], 'color': "#f5c6cb"},
+            ]
+            gauge_bgcolor = "#f0f0f0"
+        else:
+            step_colors = [
+                {'range': [0, 30], 'color': "#1a4d2e"},
+                {'range': [30, 50], 'color': "#1e3a5f"},
+                {'range': [50, 70], 'color': "#4a3f1a"},
+                {'range': [70, 85], 'color': "#4a1a1a"},
+                {'range': [85, 100], 'color': "#330000"},
+            ]
+            gauge_bgcolor = "#1a1a2e"
+        
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
             value=score,
-            title={'text': f"Risk Index - {level}", 'font': {'size': 20}},
+            title={'text': f"Risk Index - {level}", 'font': {'size': 20, 'color': bg_colors['text']}},
             gauge={
                 'axis': {'range': [0, 100], 'tickwidth': 1},
                 'bar': {'color': color},
-                'bgcolor': "#161b22",
-                'steps': [
-                    {'range': [0, 30], 'color': "#1a4d2e"},
-                    {'range': [30, 50], 'color': "#1e3a5f"},
-                    {'range': [50, 70], 'color': "#4a3f1a"},
-                    {'range': [70, 85], 'color': "#4a1a1a"},
-                    {'range': [85, 100], 'color': "#330000"},
-                ],
+                'bgcolor': gauge_bgcolor,
+                'steps': step_colors,
                 'threshold': {
                     'line': {'color': color, 'width': 4},
                     'thickness': 0.75,
@@ -292,15 +361,16 @@ class ChartManager:
         ))
         
         fig.update_layout(
-            template=ChartManager.TEMPLATE,
-            paper_bgcolor="rgba(0,0,0,0)",
+            template=ChartManager.get_template(theme),
+            paper_bgcolor=bg_colors['paper'],
+            font=dict(color=ChartManager.get_font_color(theme)),
             height=300
         )
         
         return fig
     
     @staticmethod
-    def factor_breakdown(assessment: Dict[str, Any]) -> go.Figure:
+    def factor_breakdown(assessment: Dict[str, Any], theme: str) -> Optional[go.Figure]:
         """
         Create risk factor breakdown chart
         
@@ -310,6 +380,8 @@ class ChartManager:
         Returns:
             Plotly figure
         """
+        
+        bg_colors = ChartManager.get_bg_colors(theme)
         
         factors = assessment.get('factor_scores', {})
         
@@ -340,18 +412,20 @@ class ChartManager:
         ))
         
         fig.update_layout(
-            template=ChartManager.TEMPLATE,
+            template=ChartManager.get_template(theme),
             title="📊 Skor Faktor Risiko",
             xaxis_title="Faktor",
             yaxis_title="Skor",
-            paper_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor=bg_colors['paper'],
+            plot_bgcolor=bg_colors['plot'],
+            font=dict(color=ChartManager.get_font_color(theme)),
             showlegend=True
         )
         
         return fig
     
     @staticmethod
-    def anomaly_timeline(df: pd.DataFrame) -> go.Figure:
+    def anomaly_timeline(df: pd.DataFrame, theme: str) -> go.Figure:
         """
         Create anomaly detection timeline
         
@@ -361,6 +435,8 @@ class ChartManager:
         Returns:
             Plotly figure
         """
+        
+        bg_colors = ChartManager.get_bg_colors(theme)
         
         # Calculate z-scores for key parameters
         params = ['T_Avg', 'Rain', 'RH_Avg', 'Pressure']
@@ -392,11 +468,13 @@ class ChartManager:
                         ))
         
         fig.update_layout(
-            template=ChartManager.TEMPLATE,
+            template=ChartManager.get_template(theme),
             title="⚠️ Timeline Anomali",
             xaxis_title="Tanggal",
             yaxis_title="Parameter",
-            paper_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor=bg_colors['paper'],
+            plot_bgcolor=bg_colors['plot'],
+            font=dict(color=ChartManager.get_font_color(theme)),
             height=300
         )
         
