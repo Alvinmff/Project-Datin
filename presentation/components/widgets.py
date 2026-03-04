@@ -30,7 +30,7 @@ class CopyButton:
         # Build HTML
         html = f"""
         <button id="{button_id}" onclick="copyText('{safe_text}')"
-            style="background-color:#1f6feb;color:white;border:none;
+            style="background-color:#1a1a1a;color:white;border:none;
                    padding:8px 16px;border-radius:6px;cursor:pointer;
                    font-size:0.9rem;transition:all 0.2s;">
             {label}
@@ -43,7 +43,7 @@ class CopyButton:
                 btn.style.backgroundColor = '#00ff9d';
                 setTimeout(function() {{
                     btn.innerText = '{label}';
-                    btn.style.backgroundColor = '';
+                    btn.style.backgroundColor = '#1a1a1a';
                 }}, 2000);
             }});
         }}
