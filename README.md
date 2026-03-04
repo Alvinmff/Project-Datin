@@ -144,7 +144,7 @@ Sistem penilaian risiko yang cerdas:
 
 ## 📝 Lisensi
 
-BMKG East Java - 2024
+BMKG East Java - 2026
 
 ---
 
