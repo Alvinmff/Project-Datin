@@ -303,6 +303,33 @@ def load_assets():
         with open(js_path, "r") as f:
             components.html(f"<script>{f.read()}</script>", height=0)
 
+
+def render_background_label(text: str, icon: str = "", key: str = None):
+    """Render a styled background label that matches the current theme"""
+    if st.session_state.theme_mode == 'day':
+        bg_color = "#f1f5f9"
+        border_color = "#e2e8f0"
+        text_color = "#333333"
+    else:
+        bg_color = "#1a2332"
+        border_color = "#30363d"
+        text_color = "#94a3b8"
+    
+    st.markdown(f"""
+    <div style="
+        background: {bg_color};
+        border: 1px solid {border_color};
+        border-radius: 6px;
+        padding: 6px 12px;
+        margin-bottom: 8px;
+        display: inline-block;
+    ">
+        <span style="color: {text_color}; font-size: 0.85rem; font-weight: 500;">
+            {icon} {text}
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
+
 # Load assets on startup
 load_assets()
 
@@ -361,18 +388,20 @@ def render_sidebar():
         <div style="text-align: center; padding: 20px 0;">
             <img src="https://www.meteoalor.id/assets/images/logo.png" width="100" 
                  style="border-radius: 50%; border: 2px solid #00f5ff; box-shadow: 0 0 20px #00f5ff50;">
-            <h3 style="margin-top:15px; color: #00f5ff;">BMKG Weather AI</h3>
+            <h3 style="margin-top:15px; color: #00f5ff;">BMKG Jatim Monitor</h3>
             <p style="color: #64748b; font-size: 0.8rem;">v2.0 Futuristic Edition</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("---")
         
-        # Station selector
+        # Station selector with background label
+        render_background_label("📍 Pilih Stasiun")
         selected_station = st.selectbox(
-            "📍 Pilih Stasiun",
+            "pilih_stasiun",
             settings.stations,
-            index=5  # Default to Juanda
+            index=5,
+            label_visibility="collapsed"
         )
         
         st.markdown("---")
@@ -381,16 +410,27 @@ def render_sidebar():
         df_raw = repository.get_station_data(selected_station)
         
         if df_raw is not None:
-            # Year selector
+            # Year selector with background label
             years = repository.get_available_years(selected_station)
             if years:
-                sel_year = st.selectbox("📅 Tahun", years, index=len(years)-1)
+                render_background_label("📅 Pilih Tahun")
+                sel_year = st.selectbox(
+                    "pilih_tahun",
+                    years,
+                    index=len(years)-1,
+                    label_visibility="collapsed"
+                )
                 
-                # Month selector
+                # Month selector with background label
                 months = repository.get_available_months(selected_station, sel_year)
-                sel_month = st.selectbox("📆 Bulan", ["Semua"] + months)
+                render_background_label("📆 Pilih Bulan")
+                sel_month = st.selectbox(
+                    "pilih_bulan",
+                    ["Semua"] + months,
+                    label_visibility="collapsed"
+                )
                 
-                # Day selector (if month selected)
+                # Day selector (if month selected) with background label
                 if sel_month != "Semua":
                     days = repository.get_available_days(selected_station, sel_year, months.index(sel_month) + 1 if isinstance(sel_month, int) else int(sel_month) if sel_month != "Semua" else None)
                     if days and sel_month != "Semua":
@@ -398,7 +438,12 @@ def render_sidebar():
                         month_idx = list(range(1, 13))["Semua":months].index(sel_month) + 1 if isinstance(sel_month, str) else sel_month
                         days = repository.get_available_days(selected_station, sel_year, month_idx)
                         if days:
-                            sel_days = st.multiselect("🗓️ Pilih Hari", days)
+                            render_background_label("🗓️ Pilih Hari")
+                            sel_days = st.multiselect(
+                                "pilih_hari",
+                                days,
+                                label_visibility="collapsed"
+                            )
                         else:
                             sel_days = []
                     else:
@@ -408,16 +453,19 @@ def render_sidebar():
                 
                 st.markdown("---")
                 
-                # Date range option
-                use_range = st.checkbox("📅 Gunakan Rentang Tanggal", value=False)
+                # Date range option with background label
+                render_background_label("📅 Rentang Tanggal")
+                use_range = st.checkbox("Gunakan Rentang Tanggal", value=False)
                 
                 if use_range:
+                    render_background_label("🗓️ Pilih Tanggal")
                     date_range = st.date_input(
-                        "Pilih Rentang Tanggal",
+                        "input_tanggal",
                         value=(
                             repository.get_date_range(selected_station)[0] if repository.get_date_range(selected_station) else pd.Timestamp.now(),
                             repository.get_date_range(selected_station)[1] if repository.get_date_range(selected_station) else pd.Timestamp.now()
-                        )
+                        ),
+                        label_visibility="collapsed"
                     )
                 else:
                     date_range = None
