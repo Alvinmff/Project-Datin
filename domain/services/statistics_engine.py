@@ -14,6 +14,7 @@ class StatisticalResult:
     """Statistical analysis result for a single parameter"""
     parameter: str
     mean: float
+    total: float  # Total (for Rain parameter)
     std: float
     max: float
     min: float
@@ -32,9 +33,17 @@ class StatisticalResult:
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
+
+        # Gunakan total jika parameter Rain
+        main_value = self.total if self.parameter == "Rain" else self.mean
+        main_label = "Total" if self.parameter == "Rain" else "Mean"
+
         return {
             "parameter": self.parameter,
+            "main_value": round(main_value, 2),
+            "main_label": main_label,
             "mean": round(self.mean, 2),
+            "total": round(self.total, 2),
             "std": round(self.std, 2),
             "max": round(self.max, 2),
             "min": round(self.min, 2),
@@ -62,9 +71,15 @@ class StatisticalResult:
             "stable": "relatif stabil"
         }.get(self.trend_direction, "tidak diketahui")
         
+        # For Rain parameter, show Total instead of Mean
+        if self.parameter == 'Rain':
+            main_value = f"Total: {self.total:.2f}"
+        else:
+            main_value = f"Rata-rata: {self.mean:.2f} dengan variabilitas {variability}"
+        
         return f"""
 Parameter {self.parameter}:
-- Rata-rata: {self.mean:.2f} dengan variabilitas {variability}
+- {main_value}
 - Rentang: {self.min:.2f} - {self.max:.2f}
 - Tren: {trend_desc}
 - Anomali: {self.anomaly_count} kejadian ({self.anomaly_percentage:.1f}%)
@@ -116,6 +131,7 @@ class StatisticsEngine:
         
         # Basic statistics
         mean = clean_series.mean()
+        total = clean_series.sum()  # Total for Rain parameter
         std = clean_series.std()
         max_val = clean_series.max()
         min_val = clean_series.min()
@@ -148,6 +164,7 @@ class StatisticsEngine:
         return StatisticalResult(
             parameter=param_name,
             mean=mean,
+            total=total,
             std=std,
             max=max_val,
             min=min_val,
@@ -189,6 +206,7 @@ class StatisticsEngine:
         return StatisticalResult(
             parameter=param_name,
             mean=0.0,
+            total=0.0,
             std=0.0,
             max=0.0,
             min=0.0,
@@ -217,13 +235,21 @@ class StatisticsEngine:
 """
         
         for param, result in results.items():
+            # For Rain parameter, show Total instead of Mean
+            if param == 'Rain':
+                stat_label = "Total"
+                stat_value = result.total
+            else:
+                stat_label = "Rata-rata"
+                stat_value = result.mean
+            
             text += f"""
 ┌──────────────────────────────────────────────────────────────┐
 │  📊 {param}
 └──────────────────────────────────────────────────────────────┘
 
 📈 Statistika Deskriptif:
-   • Rata-rata   : {result.mean:.2f}
+   • {stat_label:<11} : {stat_value:.2f}
    • Median      : {result.median:.2f}
    • Std Dev     : {result.std:.2f}
    • Min - Max   : {result.min:.2f} - {result.max:.2f}

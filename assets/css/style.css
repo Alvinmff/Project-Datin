@@ -503,3 +503,105 @@ h3 {
     opacity: 1;
 }
 
+/* =====================================================
+   CLEAN CORPORATE LIGHT MODE
+   Activated when body has class "light-mode"
+===================================================== */
+
+body.light-mode {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f1f5f9;
+
+    --text-primary: #111827;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+
+    --border-color: #e2e8f0;
+
+    --gradient-card: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    --gradient-header: linear-gradient(90deg, #2563eb 0%, #1e40af 100%);
+}
+
+/* ===== Background Override (Streamlit Core Fix) ===== */
+
+body.light-mode,
+body.light-mode .stApp,
+body.light-mode [data-testid="stAppViewContainer"],
+body.light-mode .block-container {
+    background-color: #f8fafc !important;
+    color: #111827 !important;
+}
+
+/* ===== Sidebar ===== */
+
+body.light-mode section[data-testid="stSidebar"] {
+    background-color: #ffffff !important;
+    border-right: 1px solid #e2e8f0 !important;
+}
+
+/* ===== Headings ===== */
+
+body.light-mode h1 {
+    -webkit-text-fill-color: initial;
+    background: none;
+    color: #1e3a8a;
+}
+
+body.light-mode h2 {
+    border-bottom: 2px solid #2563eb;
+}
+
+body.light-mode h3 {
+    color: #2563eb;
+}
+
+/* ===== Cards ===== */
+
+body.light-mode .glass-card,
+body.light-mode .metric-card,
+body.light-mode .chart-container {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Disable neon glow in light mode */
+body.light-mode .glass-card:hover,
+body.light-mode .metric-card:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+}
+
+/* ===== Buttons ===== */
+
+body.light-mode .btn-cyber {
+    border: 2px solid #2563eb;
+    color: #2563eb;
+}
+
+body.light-mode .btn-cyber:hover {
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: none;
+}
+
+body.light-mode .btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+/* ===== Scrollbar ===== */
+
+body.light-mode ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+body.light-mode ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+}
+
+body.light-mode ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

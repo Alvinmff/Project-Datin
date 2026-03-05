@@ -12,14 +12,7 @@ class CopyButton:
     
     @staticmethod
     def render(text: str, label: str = "Copy", key: Optional[str] = None) -> None:
-        """
-        Render copy button
-        
-        Args:
-            text: Text to copy
-            label: Button label
-            key: Optional unique key
-        """
+        """Render copy button"""
         
         # Generate unique ID
         button_id = f"copy_{hash(text)}"
@@ -57,9 +50,10 @@ class RiskGauge:
     """Holographic risk gauge component"""
     
     @staticmethod
-    def render(score: float, level: str, station: str = "") -> None:
+    def render(score: float, level: str, station: str = "", theme: str = "dark") -> None:
         """Render holographic risk gauge"""
         
+        # Determine colors based on level
         colors = {
             'NORMAL': '#00ff9d',
             'WATCH': '#58a6ff',
@@ -77,12 +71,14 @@ class RiskGauge:
         emoji = emojis.get(level.upper(), '🟢')
         rotation = (score / 100) * 180 - 90
         
+        # Determine styling based on theme
+        is_light = theme == "light"
+        
         # Station div
-        station_div = f'<div style="color:#64748b;font-size:0.9rem;margin-top:10px;">{station}</div>' if station else ''
+        station_div = f'<div style="margin-left:color:#64748b;font-size:0.9rem;margin-top:10px;">{station}</div>' if station else ''
         
         gauge_html = f"""
-        <div style="text-align:center;padding:20px;background:linear-gradient(135deg,#1a2332,#111827);
-                    border:1px solid {color};border-radius:16px;box-shadow:0 0 30px {color}30;">
+        <div style="text-align:center;padding:20px;border:1px solid {color};border-radius:16px;box-shadow:0 0 30px {color}30;">
             <div style="position:relative;width:200px;height:100px;margin:0 auto;overflow:hidden;">
                 <div style="position:absolute;width:200px;height:200px;border-radius:50%;
                             border:8px solid #30363d;border-bottom-color:transparent;

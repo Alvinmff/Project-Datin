@@ -31,13 +31,17 @@ class ChartManager:
 
     @staticmethod
     def get_font_color(theme: str):
-     return "#000000" if theme == "day" else "#e0e7ff"
+        """Get font color based on theme - supports both 'light'/'dark' and 'day'/'night'"""
+        if theme in ["light", "day"]:
+            return "#000000"
+        else:
+            return "#e0e7ff"
 
     # Background colors for themes
     @staticmethod
     def get_bg_colors(theme: str):
-        """Get background colors based on theme"""
-        if theme == "day":
+        """Get background colors based on theme - supports both 'light'/'dark' and 'day'/'night'"""
+        if theme in ["light", "day"]:
             return {
                 'paper': '#ffffff',
                 'plot': '#ffffff',
@@ -54,9 +58,10 @@ class ChartManager:
 
     @staticmethod
     def get_template(theme: str):
+        """Get template based on theme - supports both 'light'/'dark' and 'day'/'night'"""
         return (
             ChartManager.TEMPLATE_LIGHT
-            if theme == "day"
+            if theme in ["light", "day"]
             else ChartManager.TEMPLATE_DARK
         )
     
@@ -103,7 +108,7 @@ class ChartManager:
         
         fig.update_layout(
             template=ChartManager.get_template(theme),
-            title="🌡️ Tren Suhu Harian",
+            title="Tren Suhu",
             xaxis_title="Tanggal",
             yaxis_title="Suhu (°C)",
             hovermode="x unified",
@@ -169,7 +174,7 @@ class ChartManager:
             color='WS_Bin',
             template=ChartManager.get_template(theme),
             color_discrete_sequence=px.colors.sequential.Plasma,
-            title="🪁 Windrose (Arah Angin)"
+            title="Windrose (Arah Angin)"
         )
         
         fig.update_layout(
@@ -195,6 +200,9 @@ class ChartManager:
         
         bg_colors = ChartManager.get_bg_colors(theme)
         
+        # Calculate max pressure for dynamic range
+        max_pressure = df['Pressure'].max() if 'Pressure' in df.columns else 1020
+        
         fig = px.area(
             df, 
             x='Tanggal_DT', 
@@ -204,9 +212,10 @@ class ChartManager:
         
         fig.update_layout(
             template=ChartManager.get_template(theme),
-            title="⏲️ Tekanan Udara (mb)",
+            title="Tekanan Udara (mb)",
             xaxis_title="Tanggal",
             yaxis_title="Tekanan (mb)",
+            yaxis=dict(range=[900, max_pressure + 5]),
             paper_bgcolor=bg_colors['paper'],
             plot_bgcolor=bg_colors['plot'],
             font=dict(color=ChartManager.get_font_color(theme)),
@@ -229,11 +238,12 @@ class ChartManager:
         bg_colors = ChartManager.get_bg_colors(theme)
         
         # Adjust colors for light mode visibility
+        is_light = theme in ["light", "day"]
         line_colors = [
             ChartManager.COLORS['green'],
             ChartManager.COLORS['yellow'],
             ChartManager.COLORS['orange'],
-            '#888888' if theme == "day" else '#ffffff'
+            '#888888' if is_light else '#ffffff'
         ]
         
         fig = px.line(
@@ -245,7 +255,7 @@ class ChartManager:
         
         fig.update_layout(
             template=ChartManager.get_template(theme),
-            title="💧 Kelembapan Udara (RH %)",
+            title="Kelembapan Udara (RH %)",
             xaxis_title="Tanggal",
             yaxis_title="Kelembapan (%)",
             paper_bgcolor=bg_colors['paper'],
@@ -286,7 +296,7 @@ class ChartManager:
         
         fig.update_layout(
             template=ChartManager.get_template(theme),
-            title="🌧️ Curah Hujan (mm)",
+            title="Curah Hujan (mm)",
             xaxis_title="Tanggal",
             yaxis_title="Curah Hujan (mm)",
             paper_bgcolor=bg_colors['paper'],
@@ -324,7 +334,8 @@ class ChartManager:
         color = colors.get(level.upper(), ChartManager.COLORS['green'])
         
         # Adjust gauge step colors based on theme
-        if theme == "day":
+        is_light = theme in ["light", "day"]
+        if is_light:
             step_colors = [
                 {'range': [0, 30], 'color': "#d4edda"},
                 {'range': [30, 50], 'color': "#cce5ff"},
