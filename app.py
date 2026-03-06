@@ -662,15 +662,37 @@ def render_statistics(df, sel_year=None, station=None, df_raw=None):
         plot_template = "plotly_dark" if st.session_state.theme == "dark" else "plotly_white"
 
         fig_mon_temp = go.Figure()
-        fig_mon_temp.add_trace(go.Bar(x=df_mon_temp['month'], y=df_mon_temp['T_Max'], name="Rata2 Max", marker_color='#e74c3c'))
-        fig_mon_temp.add_trace(go.Bar(x=df_mon_temp['month'], y=df_mon_temp['T_Avg'], name="Rata2 Harian", marker_color='#f1c40f'))
-        fig_mon_temp.add_trace(go.Bar(x=df_mon_temp['month'], y=df_mon_temp['T_Min'], name="Rata2 Min", marker_color='#3498db'))
+
+        fig_mon_temp.add_trace(go.Scatter(
+            x=df_mon_temp['month'],
+            y=df_mon_temp['T_Max'],
+            mode='lines+markers',
+            name="Rata2 Max",
+            line=dict(color='#e74c3c', width=3)
+        ))
+
+        fig_mon_temp.add_trace(go.Scatter(
+            x=df_mon_temp['month'],
+            y=df_mon_temp['T_Avg'],
+            mode='lines+markers',
+            name="Rata2 Harian",
+            line=dict(color='#f1c40f', width=3)
+        ))
+
+        fig_mon_temp.add_trace(go.Scatter(
+            x=df_mon_temp['month'],
+            y=df_mon_temp['T_Min'],
+            mode='lines+markers',
+            name="Rata2 Min",
+            line=dict(color='#3498db', width=3)
+        ))
         
         fig_mon_temp.update_layout(
-            template=plot_template, barmode='group', 
+            template=plot_template,
             xaxis=dict(tickmode='linear', title="Bulan"),
             yaxis=dict(title="Suhu (°C)")
         )
+
         st.plotly_chart(fig_mon_temp, use_container_width=True)
 
         # with st.expander("👁️ Lihat Tabel Data Mentah"):
