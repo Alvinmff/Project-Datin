@@ -21,7 +21,7 @@ from domain.services.risk_engine import RiskEngine
 from domain.services.statistics_engine import StatisticsEngine
 from infrastructure.repositories.weather_repository import WeatherRepository
 from presentation.components.charts import ChartManager
-from presentation.components.widgets import CopyButton, RiskGauge, AlertBox
+from presentation.components.widgets import CopyButton, AlertBox
 
 # ===== NEW THEME SYSTEM =====
 if "theme" not in st.session_state:
@@ -432,11 +432,6 @@ def main():
             elif sel_year:
                 st.caption(f"Tahun: {sel_year}")
             
-            # Render risk gauge centered below the header
-            st.markdown("<div style='text-align:center; margin: 20px 0;'>", unsafe_allow_html=True)
-            RiskGauge.render(assessment.risk_score, assessment.risk_level.value, station, st.session_state.theme)
-            st.markdown("</div>", unsafe_allow_html=True)
-            
             # ===== KPI METRICS =====
             st.markdown("---")
             
@@ -463,7 +458,7 @@ def main():
                 render_statistics(df_f, sel_year=sel_year, station=station, df_raw=df_raw)
             
             with tab3:
-                render_reports(assessment)
+                render_reports(assessment, station)
             
             with tab4:
                 render_data_table(df_f, sel_month)
@@ -738,43 +733,18 @@ def render_statistics(df, sel_year=None, station=None, df_raw=None):
     CopyButton.render(stat_narrative, "📋 Copy Laporan")
 
 
-def render_reports(assessment):
+def render_reports(assessment, station):
     """Render risk assessment reports"""
     
-    st.subheader("📋 Laporan Penilaian Risiko")
+    st.subheader("📋 Laporan Penilaian Risiko Cuaca")
     
-    # Risk gauge
-    fig_gauge = chart_manager.risk_gauge(assessment.risk_score, assessment.risk_level.value,st.session_state.theme)
-    st.plotly_chart(fig_gauge, use_container_width=True)
-    
-    # Report text
+    # Report text from assessment
     report_text = assessment.to_report_text()
-    st.text_area("Laporan Lengkap", report_text, height=350)
+    st.text_area("Laporan Lengkap", report_text, height=400)
     
     col1, col2 = st.columns([1, 4])
     with col1:
         CopyButton.render(report_text, "📋 Copy Laporan")
-    
-    # Factor breakdown
-    st.markdown("---")
-    st.subheader("📊 Detail Faktor Risiko")
-    
-    factor_data = {
-        "Curah Hujan": assessment.rainfall_score,
-        "Suhu": assessment.temperature_score,
-        "Angin": assessment.wind_score,
-        "Tekanan": assessment.pressure_score,
-        "Kelembapan": assessment.humidity_score
-    }
-    
-    for factor, score in factor_data.items():
-        st.progress(score / 25 if factor == "Curah Hujan" else score / 20, text=f"{factor}: {score:.1f}")
-    
-    # Dominant factors
-    if assessment.dominant_factors:
-        st.markdown("### 🎯 Faktor Dominan:")
-        for factor in assessment.dominant_factors:
-            st.markdown(f"- {factor}")
 
 
 def render_data_table(df, sel_month=None):
