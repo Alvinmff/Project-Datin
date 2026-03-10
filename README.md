@@ -1,4 +1,4 @@
-# 🌦️ BMKG Weather Intelligence v2.0
+# 🌦️ BMKG Weather Intelligence v1.0
 
 Sistem Pemantauan Cuaca Cerdas dengan AI Adaptive Scoring - **Futuristic Edition**
 
